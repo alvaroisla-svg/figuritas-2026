@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Figuritas Mundial 2026 ⚽</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<!-- SUPABASE CDN -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
@@ -27,14 +28,8 @@ header p{font-size:.7rem;opacity:.65;margin-top:2px;letter-spacing:1px;text-tran
 .tab{flex:1;padding:.6rem .5rem;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;color:rgba(255,255,255,.6);background:transparent;border:none;cursor:pointer;border-bottom:3px solid transparent;transition:all .2s}
 .tab.activa{color:white;border-bottom:3px solid var(--amarillo)}
 
-/* NUBE SYNC */
-.nube-sync { background:#e8f4fd; padding:12px; border-radius:12px; margin: 12px auto; max-width: 700px; border: 1px solid #90caf9; display: flex; flex-wrap: wrap; gap: 8px; width: calc(100% - 2rem); }
-.nube-sync input { flex:1; min-width: 200px; padding:8px 12px; font-size:14px; font-family:'DM Sans',sans-serif; border:1.5px solid #90caf9; border-radius:8px; outline:none; }
-.nube-sync input:focus { border-color:var(--acento); }
-.nube-sync p { flex-basis: 100%; font-size: 11px; color: #0353a4; margin-top: 4px; line-height: 1.3; }
-
 /* STATS */
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:0 1rem 1rem;max-width:700px;margin:0 auto}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:1rem;max-width:700px;margin:0 auto}
 .stat{background:var(--card);border-radius:12px;padding:.75rem .5rem;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.07);border:1px solid var(--gris-borde)}
 .stat-n{font-family:'Bebas Neue',sans-serif;font-size:2rem;line-height:1}
 .stat-n.total{color:var(--acento)} .stat-n.tenidas{color:var(--rojo)} .stat-n.faltantes{color:var(--verde)} .stat-n.rep-n{color:#b8860b}
@@ -161,19 +156,14 @@ footer{text-align:center;padding:1rem;font-size:11px;color:var(--texto-suave)}
 
 <header>
   <h1>⚽ Figuritas Mundial 2026</h1>
-  <p>Toca una lámina para marcarla</p>
+  <p>Sincronización automática activada</p>
   <div class="tabs">
     <button class="tab activa" onclick="cambiarTab('album')">📋 Mi Álbum</button>
     <button class="tab" onclick="cambiarTab('repetidas')">🔁 Repetidas</button>
   </div>
 </header>
 
-<div class="nube-sync">
-  <input type="text" id="syncClave" placeholder="🔑 Crea una clave única (ej: juan2026)">
-  <button class="btn btn-export" onclick="sincronizarNube()">☁️ Conectar Nube</button>
-  <p>Conecta la nube para usar tu álbum en todos tus dispositivos. Tus cambios se guardarán automáticamente.</p>
-</div>
-
+<!-- ÁLBUM -->
 <div id="tab-album">
   <div class="stats">
     <div class="stat"><div class="stat-n total" id="sTotal">0</div><div class="stat-l">Total</div></div>
@@ -205,6 +195,7 @@ footer{text-align:center;padding:1rem;font-size:11px;color:var(--texto-suave)}
   <div class="lista" id="lista-album"></div>
 </div>
 
+<!-- REPETIDAS -->
 <div id="tab-repetidas" class="hidden">
   <div class="stats">
     <div class="stat"><div class="stat-n rep-n" id="rTotal">0</div><div class="stat-l">Total repetidas</div></div>
@@ -227,28 +218,21 @@ footer{text-align:center;padding:1rem;font-size:11px;color:var(--texto-suave)}
 
 <script>
 /* ===============================
-   CONFIGURACIÓN SUPABASE
+   CONFIGURACIÓN SUPABASE INVISIBLE
 ================================*/
 const supaUrl = 'https://sizghdmbbbymnuelonat.supabase.co';
 const supaKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNpemdoZG1iYmJ5bW51ZWxvbmF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA1NTUyNzAsImV4cCI6MjA5NjEzMTI3MH0.fQBHe56t-w8wJARcnPxIzZcnFSLK-7EvoxilcOVR52Y';
 const supa = supabase.createClient(supaUrl, supaKey);
 
+// CLAVE FIJA E INVISIBLE PARA TU USO PERSONAL EXCLUSIVO
+const miClave = 'mi_album_exclusivo'; 
 let syncTimeout = null;
-let miClave = localStorage.getItem('supa_clave') || '';
 
 async function sincronizarNube() {
-  const input = document.getElementById('syncClave').value.trim();
-  if(!input) { mostrarToast('⚠️ Ingresa una clave primero'); return; }
-  
-  miClave = input;
-  localStorage.setItem('supa_clave', miClave);
-  mostrarToast('⏳ Conectando a la nube...');
-
   const { data, error } = await supa.from('progreso').select('datos').eq('clave', miClave).maybeSingle();
 
   if (error) {
-    mostrarToast('❌ Error de conexión');
-    console.error(error);
+    console.error('Error al sincronizar:', error);
     return;
   }
 
@@ -259,16 +243,15 @@ async function sincronizarNube() {
     saveRepLocal();
     renderAlbum();
     if(document.getElementById('tab-repetidas').classList.contains('hidden') === false) renderRepetidas();
-    mostrarToast('✅ Progreso descargado de la nube');
   } else {
-    guardarEnNube(true);
+    // Si es la primera vez que entras, sube tu estado local vacío a la nube
+    guardarEnNube();
   }
 }
 
-async function guardarEnNube(mostrarMensaje = false) {
-  if(!miClave) return;
+async function guardarEnNube() {
   clearTimeout(syncTimeout);
-  // Esperamos 1 segundo después del último click para no saturar la base de datos
+  // Esperamos 1.5 segundos después del último click para no saturar la base de datos
   syncTimeout = setTimeout(async () => {
     const { error } = await supa.from('progreso').upsert({
       clave: miClave,
@@ -277,10 +260,8 @@ async function guardarEnNube(mostrarMensaje = false) {
     
     if(error) {
       console.error('Error guardando en la nube:', error);
-    } else if(mostrarMensaje) {
-      mostrarToast('✅ Progreso vinculado a la nube');
     }
-  }, 1000); 
+  }, 1500); 
 }
 
 /* ===============================
@@ -617,11 +598,8 @@ document.getElementById('filtro').addEventListener('change',renderAlbum);
 document.getElementById('filtroPais').addEventListener('change',renderAlbum);
 document.getElementById('filtroPaisRep').addEventListener('change',renderRepetidas);
 
-// Auto-carga de clave al abrir la página
-if (miClave) {
-  document.getElementById('syncClave').value = miClave;
-}
-
+// INICIAR SINCRONIZACIÓN AUTOMÁTICA
+sincronizarNube();
 renderAlbum();
 </script>
 </body>
