@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figuritas Mundial 2026 ⚽</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --rojo:#e63946; --rojo-bg:#fde8ea;
+  --verde:#2d6a4f; --verde-bg:#d8f3dc;
+  --amarillo:#e9c46a; --amarillo-bg:#fff8e7;
+  --gris:#f1f3f5; --gris-borde:#dee2e6;
+  --texto:#212529; --texto-suave:#6c757d;
+  --fondo:#f8f9fa; --card:#ffffff;
+  --acento:#023e8a;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--fondo);color:var(--texto);min-height:100vh}
+
+/* HEADER */
+header{background:var(--acento);color:white;padding:1.1rem 1rem 0;text-align:center;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.2)}
+header h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.5rem,5vw,2.2rem);letter-spacing:2px;line-height:1}
+header p{font-size:.7rem;opacity:.65;margin-top:2px;letter-spacing:1px;text-transform:uppercase}
+.tabs{display:flex;margin-top:.75rem}
+.tab{flex:1;padding:.6rem .5rem;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;color:rgba(255,255,255,.6);background:transparent;border:none;cursor:pointer;border-bottom:3px solid transparent;transition:all .2s}
+.tab.activa{color:white;border-bottom:3px solid var(--amarillo)}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:1rem;max-width:700px;margin:0 auto}
+.stat{background:var(--card);border-radius:12px;padding:.75rem .5rem;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.07);border:1px solid var(--gris-borde)}
+.stat-n{font-family:'Bebas Neue',sans-serif;font-size:2rem;line-height:1}
+.stat-n.total{color:var(--acento)} .stat-n.tenidas{color:var(--rojo)} .stat-n.faltantes{color:var(--verde)} .stat-n.rep-n{color:#b8860b}
+.stat-l{font-size:.65rem;text-transform:uppercase;letter-spacing:1px;color:var(--texto-suave);margin-top:3px}
+
+/* CONTROLES */
+.controles{display:flex;gap:8px;padding:0 1rem .75rem;max-width:700px;margin:0 auto;flex-wrap:wrap}
+.controles input{flex:1;min-width:150px;padding:8px 12px;font-size:14px;font-family:'DM Sans',sans-serif;border:1.5px solid var(--gris-borde);border-radius:8px;background:var(--card);color:var(--texto);outline:none;transition:border-color .2s}
+.controles input:focus{border-color:var(--acento)}
+.controles select{padding:8px 10px;font-size:13px;font-family:'DM Sans',sans-serif;border:1.5px solid var(--gris-borde);border-radius:8px;background:var(--card);color:var(--texto);outline:none;cursor:pointer}
+#filtroPais,#filtroPaisRep{width:100%;flex-basis:100%}
+
+/* LEYENDA */
+.leyenda{display:flex;gap:16px;padding:0 1rem .75rem;max-width:700px;margin:0 auto;font-size:12px;color:var(--texto-suave);flex-wrap:wrap}
+.leyenda span{display:flex;align-items:center;gap:5px}
+.dot{width:12px;height:12px;border-radius:3px;display:inline-block}
+.dot.t{background:var(--rojo)} .dot.f{background:#4CAF50}
+
+/* BOTONES */
+.btn-row{display:flex;gap:8px;padding:0 1rem .75rem;max-width:700px;margin:0 auto;flex-wrap:wrap}
+.btn{flex:1;min-width:130px;padding:9px 10px;font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;border:none;border-radius:8px;cursor:pointer;transition:opacity .15s,transform .1s;display:flex;align-items:center;justify-content:center;gap:5px}
+.btn:active{transform:scale(.97);opacity:.85}
+.btn-faltan{background:var(--verde-bg);color:var(--verde);outline:1.5px solid #74c69d}
+.btn-rep{background:var(--amarillo-bg);color:#7d5a00;outline:1.5px solid var(--amarillo)}
+.btn-print{background:#eef2ff;color:#3730a3;outline:1.5px solid #a5b4fc}
+.btn-export{background:#e8f4fd;color:#0353a4;outline:1.5px solid #90caf9}
+.btn-import{background:#f3e8ff;color:#6b21a8;outline:1.5px solid #d8b4fe}
+
+/* LISTA */
+.lista{max-width:700px;margin:0 auto;padding:0 1rem 2rem;display:flex;flex-direction:column;gap:8px}
+
+/* BLOQUE */
+.bloque{background:var(--card);border-radius:12px;border:1px solid var(--gris-borde);overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.bloque-header{display:flex;align-items:center;justify-content:space-between;padding:.6rem .75rem;cursor:pointer;user-select:none;gap:8px;background:var(--gris);border-bottom:1px solid var(--gris-borde)}
+.bloque-header:hover{background:#e9ecef}
+.bloque-titulo{display:flex;align-items:center;gap:8px;font-weight:600;font-size:13px}
+.bandera{font-size:20px;line-height:1;font-family:'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif}
+.bloque-badge{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--texto-suave);flex-shrink:0}
+.badge-tengo{color:var(--rojo);font-weight:600} .badge-faltan{color:var(--verde);font-weight:600}
+.progress-bar{width:50px;height:5px;background:var(--gris-borde);border-radius:99px;overflow:hidden;display:inline-block}
+.progress-fill{height:100%;background:var(--rojo);border-radius:99px;transition:width .3s}
+
+/* FIGURITAS álbum */
+.figuritas{display:flex;flex-wrap:wrap;gap:5px;padding:.65rem .75rem}
+.fig{font-size:10.5px;padding:4px 7px;border-radius:6px;font-weight:600;cursor:pointer;user-select:none;transition:transform .1s;letter-spacing:.3px;border:none;font-family:'DM Sans',sans-serif}
+.fig:active{transform:scale(.9)}
+.fig.tengo{background:var(--rojo-bg);color:var(--rojo);outline:1.5px solid var(--rojo)}
+.fig.faltan{background:var(--verde-bg);color:var(--verde);outline:1.5px solid #74c69d}
+
+/* FIGURITAS repetidas */
+.figuritas-rep{display:flex;flex-wrap:wrap;gap:6px;padding:.65rem .75rem}
+.fig-rep{display:flex;align-items:center;border-radius:8px;overflow:hidden;border:1.5px solid var(--amarillo);font-size:11px;font-weight:600;font-family:'DM Sans',sans-serif}
+.fig-rep-label{padding:4px 7px;background:var(--amarillo-bg);color:#7d5a00;min-width:48px;text-align:center}
+.fig-rep-ctrl{display:flex;align-items:center}
+.fig-rep-btn{width:24px;min-height:26px;background:var(--amarillo);color:#7d5a00;border:none;cursor:pointer;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;transition:background .15s;font-family:'DM Sans',sans-serif}
+.fig-rep-btn:active{background:#d4a843}
+.fig-rep-count{padding:0 6px;background:white;color:var(--texto);min-width:22px;text-align:center;font-size:12px}
+
+/* TOAST */
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(80px);background:#212529;color:white;padding:10px 18px;border-radius:24px;font-size:13px;font-weight:500;z-index:999;transition:transform .3s ease;white-space:nowrap;pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.hidden{display:none}
+footer{text-align:center;padding:1rem;font-size:11px;color:var(--texto-suave)}
+#print-area{display:none}
+
+/* ===== IMPRESIÓN — estilo planilla ===== */
+@media print {
+  @page { margin: 1.2cm 1.4cm; size: A4; }
+  body > *{ display:none !important }
+  #print-area{ display:block !important; font-family:'DM Sans',Arial,sans-serif; color:#111; background:white; -webkit-print-color-adjust:exact; print-color-adjust:exact }
+
+  .print-page{ width:100%; background:white }
+
+  /* HEADER */
+  .print-header{
+    display:flex; align-items:center; justify-content:space-between;
+    border-bottom:3px solid #111; padding-bottom:8px; margin-bottom:10px;
+  }
+  .print-header-left{ display:flex; flex-direction:column; gap:2px }
+  .print-title{
+    font-family:'Bebas Neue',Arial Black,sans-serif;
+    font-size:26px; letter-spacing:2px; line-height:1; color:#111;
+  }
+  .print-title span.modo-faltantes{ color:#c0392b }
+  .print-title span.modo-repetidas{ color:#7d5a00 }
+  .print-subtitle{ font-size:9px; color:#777; text-transform:uppercase; letter-spacing:1px }
+  .print-meta{ text-align:right; font-size:9px; color:#999; line-height:1.8 }
+  .print-meta b{ color:#333; font-size:11px }
+
+  /* TABLA tipo planilla */
+  .print-tabla{ width:100%; border-collapse:collapse; margin-top:6px }
+
+  /* Fila de selección */
+  .print-row td{ border-bottom:1px solid #ddd; vertical-align:middle; padding:4px 0 }
+
+  /* Celda de bandera+nombre — todo en una fila */
+  .print-cell-pais{
+    white-space:nowrap; padding:4px 28px 4px 2px;
+    width:1%; border-right:2px solid #bbb;
+  }
+  .print-pais-inner{
+    display:flex; align-items:center; gap:5px;
+  }
+  .print-pais-inner img{ display:block; border-radius:2px; flex-shrink:0 }
+  .print-pais-codigo{
+    font-size:9px; font-weight:800; text-transform:uppercase;
+    letter-spacing:.5px; color:#111; white-space:nowrap;
+  }
+  .print-pais-nombre{
+    font-size:8px; font-weight:400; color:#555;
+  }
+
+  /* Celda de láminas */
+  .print-cell-lams{ padding:4px 6px 4px 18px }
+  .print-lams{ display:flex; flex-wrap:wrap; gap:3px }
+
+  .print-chip{
+    font-size:9px; font-weight:700; padding:3px 6px;
+    border-radius:3px; white-space:nowrap; letter-spacing:.2px;
+    border:1px solid #999; background:white; color:#111;
+    display:inline-block;
+  }
+  .print-chip-count{
+    font-weight:400; color:#888; margin-left:2px;
+  }
+
+  /* FOOTER */
+  .print-footer{
+    margin-top:10px; padding-top:6px; border-top:1px solid #ddd;
+    display:flex; justify-content:space-between; font-size:8px; color:#bbb;
+  }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>⚽ Figuritas Mundial 2026</h1>
+  <p>Toca una lámina para marcarla · Se guarda automáticamente</p>
+  <div class="tabs">
+    <button class="tab activa" onclick="cambiarTab('album')">📋 Mi Álbum</button>
+    <button class="tab" onclick="cambiarTab('repetidas')">🔁 Repetidas</button>
+  </div>
+</header>
+
+<!-- ÁLBUM -->
+<div id="tab-album">
+  <div class="stats">
+    <div class="stat"><div class="stat-n total" id="sTotal">0</div><div class="stat-l">Total</div></div>
+    <div class="stat"><div class="stat-n tenidas" id="sTengo">0</div><div class="stat-l">Tienes</div></div>
+    <div class="stat"><div class="stat-n faltantes" id="sFaltan">0</div><div class="stat-l">Te faltan</div></div>
+  </div>
+  <div class="controles">
+    <select id="filtroPais"><option value="todas">🌍 Todos los países</option></select>
+    <input type="text" id="buscar" placeholder="🔍 Buscar código...">
+    <select id="filtro">
+      <option value="todas">Todas</option>
+      <option value="tengo">Solo las que tienes</option>
+      <option value="faltan">Solo las que te faltan</option>
+    </select>
+  </div>
+  <div class="leyenda">
+    <span><span class="dot t"></span> La tienes</span>
+    <span><span class="dot f"></span> Te falta</span>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-faltan" onclick="compartirFaltantes()">📤 Compartir faltantes</button>
+    <button class="btn btn-print"  onclick="imprimirFaltantes()">🖨️ Imprimir faltantes</button>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-export" onclick="exportarDatos()">💾 Exportar progreso</button>
+    <button class="btn btn-import" onclick="document.getElementById('importInput').click()">📥 Importar progreso</button>
+    <input type="file" id="importInput" accept=".json" style="display:none" onchange="importarDatos(event)">
+  </div>
+  <div class="lista" id="lista-album"></div>
+</div>
+
+<!-- REPETIDAS -->
+<div id="tab-repetidas" class="hidden">
+  <div class="stats">
+    <div class="stat"><div class="stat-n rep-n" id="rTotal">0</div><div class="stat-l">Total repetidas</div></div>
+    <div class="stat"><div class="stat-n rep-n" id="rSelecciones">0</div><div class="stat-l">Selecciones</div></div>
+    <div class="stat"><div class="stat-n rep-n" id="rMax">0</div><div class="stat-l">Máx. de una</div></div>
+  </div>
+  <div class="controles">
+    <select id="filtroPaisRep"><option value="todas">🌍 Todos los países</option></select>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-rep"   onclick="compartirRepetidas()">📤 Compartir repetidas</button>
+    <button class="btn btn-print" onclick="imprimirRepetidas()">🖨️ Imprimir repetidas</button>
+  </div>
+  <div class="lista" id="lista-rep"></div>
+</div>
+
+<div id="print-area"></div>
+<footer>Álbum FIFA World Cup 2026 · Guardado automático en este navegador</footer>
+<div class="toast" id="toast"></div>
+
+<script>
+const FLAG_ISO={
+  FWC:null,MEX:"mx",RSA:"za",KOR:"kr",CZE:"cz",CAN:"ca",BIH:"ba",QAT:"qa",
+  SUI:"ch",BRA:"br",MAR:"ma",HAI:"ht",SCO:"gb-sct",USA:"us",PAR:"py",AUS:"au",
+  TUR:"tr",GER:"de",CUW:"cw",CIV:"ci",ECU:"ec",NED:"nl",JPN:"jp",SWE:"se",
+  TUN:"tn",BEL:"be",EGY:"eg",IRN:"ir",NZL:"nz",ESP:"es",CPV:"cv",KSA:"sa",
+  URU:"uy",FRA:"fr",SEN:"sn",IRQ:"iq",NOR:"no",ARG:"ar",ALG:"dz",AUT:"at",
+  JOR:"jo",POR:"pt",COD:"cd",UZB:"uz",COL:"co",ENG:"gb-eng",CRO:"hr",GHA:"gh",
+  PAN:"pa",CC:null
+};
+function flagImg(prefix,size){
+  size=size||20;
+  const iso=FLAG_ISO[prefix];
+  if(!iso){
+    const icon=prefix==="FWC"?"🏆":"🥤";
+    return "<span style=\"font-size:"+size+"px;line-height:1\">"+icon+"</span>";
+  }
+  const h=Math.round(size*0.75);
+  return "<img src=\"https://flagcdn.com/"+size+"x"+h+"/"+iso+".png\" width=\""+size+"\" height=\""+h+"\" alt=\""+prefix+"\" style=\"border-radius:2px;vertical-align:middle;\">";
+}
+const NAMES={
+  FWC:"FWC · FIFA World Cup",MEX:"MEX · México",RSA:"RSA · Arabia Saudita",
+  KOR:"KOR · Corea del Sur",CZE:"CZE · Rep. Checa",CAN:"CAN · Canadá",
+  BIH:"BIH · Bosnia",QAT:"QAT · Qatar",SUI:"SUI · Suiza",BRA:"BRA · Brasil",
+  MAR:"MAR · Marruecos",HAI:"HAI · Haití",SCO:"SCO · Escocia",
+  USA:"USA · Estados Unidos",PAR:"PAR · Paraguay",AUS:"AUS · Australia",
+  TUR:"TUR · Turquía",GER:"GER · Alemania",CUW:"CUW · Curaçao",
+  CIV:"CIV · Costa de Marfil",ECU:"ECU · Ecuador",NED:"NED · Países Bajos",
+  JPN:"JPN · Japón",SWE:"SWE · Suecia",TUN:"TUN · Túnez",BEL:"BEL · Bélgica",
+  EGY:"EGY · Egipto",IRN:"IRN · Irán",NZL:"NZL · Nueva Zelanda",
+  ESP:"ESP · España",CPV:"CPV · Cabo Verde",KSA:"KSA · Arabia Saudita",
+  URU:"URU · Uruguay",FRA:"FRA · Francia",SEN:"SEN · Senegal",IRQ:"IRQ · Irak",
+  NOR:"NOR · Noruega",ARG:"ARG · Argentina",ALG:"ALG · Argelia",
+  AUT:"AUT · Austria",JOR:"JOR · Jordania",POR:"POR · Portugal",
+  COD:"COD · R.D. Congo",UZB:"UZB · Uzbekistán",COL:"COL · Colombia",
+  ENG:"ENG · Inglaterra",CRO:"CRO · Croacia",GHA:"GHA · Ghana",
+  PAN:"PAN · Panamá",CC:"CC · Coca-Cola"
+};
+const INIT_TENGO={
+  FWC:["FWC00","FWC4"],
+  MEX:[2,3,13,14,15,18,19],RSA:[2,4,6,7,9,10,11,16,17,19,20],
+  KOR:[2,5,8,11,14,17,18],CZE:[1,3,4,5,6,7,8,9,10,11,16,17,18],
+  CAN:[4,5,7,8,13,14,16,17,20],BIH:[3,5,7,8,9,10,12,13,14,16],
+  QAT:[2,3,4,5,6,7,8,12,13,17],SUI:[3,7,8,9,10,11,12,13,15,17],
+  BRA:[1,2,3,5,6,7,10,11,13,15,16,19],MAR:[4,5,6,8,9,17],
+  HAI:[3,4,7,8,9,11,12,16,17,18],SCO:[2,4,6,8,9,12,13,14,15,18,19,20],
+  USA:[1,2,5,6,7,9,10,11,14,20],PAR:[1,9,13,14,16,17],
+  AUS:[2,3,4,6,8,10,12,19],TUR:[3,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],
+  GER:[4,5,6,7,9,10,11,12,14,16,20],CUW:[1,2,3,4,7,8,11,12,16,17],
+  CIV:[2,5,6,9,14,17,19,20],ECU:[5,7,8,9,11,14,15,19,20],
+  NED:[6,7,12,13,14,18,19],JPN:[2,4,6,7,8,10,11,16,17,20],
+  SWE:[1,2,3,4,5,6,7,9,13,14,16,20],TUN:[2,5,6,7,10,12,14,17,20],
+  BEL:[2,3,5,6,8,9,15,16,17,18,20],EGY:[6,7,8,9,17],
+  IRN:[1,5,9,14,15,18,19],NZL:[3,15,16,20],
+  ESP:[1,2,3,4,6,7,11,12,14,17],CPV:[1,11,13,19,20],
+  KSA:[1,2,3,4,6,7,11,13,15,16,20],URU:[3,5,6,7,9,10,11,12,13,14,18,19,20],
+  FRA:[1,2,4,8,12,13,14,16],SEN:[1,7,12,14,15,18],
+  IRQ:[1,2,4,7,9,10,11,16,19,20],NOR:[2,3,4,6,7,11,13,14,15,19],
+  ARG:[2,3,4,10,13,16,18],ALG:[2,3,5,7,9,14,15,16,20],
+  AUT:[1,6,7,13,15,17,18],JOR:[4,5,6,8,12,13,16,17],
+  POR:[9,10,14,15,16,18,20],COD:[1,2,6,9,10,11,14],
+  UZB:[7,9,12,13,14,16,17,19,20],COL:[1,2,3,6,7,9,16,17],
+  ENG:[1,7,9,10,11,14,15,16,17],CRO:[5,7,14,18],
+  GHA:[6,15],PAN:[3,9,13,16,17,19,20],CC:[]
+};
+const TOTALS={
+  FWC:20,MEX:20,RSA:20,KOR:20,CZE:20,CAN:20,BIH:20,QAT:20,
+  SUI:20,BRA:20,MAR:20,HAI:20,SCO:20,USA:20,PAR:20,AUS:20,
+  TUR:20,GER:20,CUW:20,CIV:20,ECU:20,NED:20,JPN:20,SWE:20,
+  TUN:20,BEL:20,EGY:20,IRN:20,NZL:20,ESP:20,CPV:20,KSA:20,
+  URU:20,FRA:20,SEN:20,IRQ:20,NOR:20,ARG:20,ALG:20,AUT:20,
+  JOR:20,POR:20,COD:20,UZB:20,COL:20,ENG:20,CRO:20,GHA:20,
+  PAN:20,CC:14
+};
+const LS_KEY="figuritas_mundial_2026", LS_KEY_R="figuritas_mundial_2026_rep";
+
+function buildIds(p){
+  if(p==="FWC"){const a=["FWC00"];for(let i=1;i<=19;i++)a.push("FWC"+i);return a;}
+  const a=[];for(let i=1;i<=TOTALS[p];i++)a.push(p+i);return a;
+}
+function loadState(){
+  const s=localStorage.getItem(LS_KEY);
+  if(s){try{return JSON.parse(s);}catch(e){}}
+  const r={};
+  Object.keys(TOTALS).forEach(p=>{
+    const ids=buildIds(p);
+    const t=p==="FWC"?new Set(INIT_TENGO.FWC):new Set((INIT_TENGO[p]||[]).map(n=>p+n));
+    r[p]={};ids.forEach(id=>r[p][id]=t.has(id));
+  });
+  return r;
+}
+function loadRep(){
+  const s=localStorage.getItem(LS_KEY_R);
+  if(s){try{return JSON.parse(s);}catch(e){}}
+  const r={};Object.keys(TOTALS).forEach(p=>{r[p]={};buildIds(p).forEach(id=>r[p][id]=0);});
+  return r;
+}
+const state=loadState(), rep=loadRep();
+function saveState(){localStorage.setItem(LS_KEY,JSON.stringify(state));}
+function saveRep(){localStorage.setItem(LS_KEY_R,JSON.stringify(rep));}
+
+// TABS
+function cambiarTab(tab){
+  document.getElementById('tab-album').classList.toggle('hidden',tab!=='album');
+  document.getElementById('tab-repetidas').classList.toggle('hidden',tab!=='repetidas');
+  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('activa',(i===0&&tab==='album')||(i===1&&tab==='repetidas')));
+  if(tab==='album')renderAlbum();else renderRepetidas();
+}
+
+// ÁLBUM
+function toggle(prefix,id){
+  state[prefix][id]=!state[prefix][id];saveState();
+  const el=document.getElementById('fig-'+id);
+  if(el)el.className='fig '+(state[prefix][id]?'tengo':'faltan');
+  updateBadgeAlbum(prefix);renderStatsAlbum();
+}
+function updateBadgeAlbum(prefix){
+  const vals=Object.values(state[prefix]);
+  const nt=vals.filter(Boolean).length,nf=vals.length-nt;
+  const pct=vals.length?Math.round(nt/vals.length*100):0;
+  const el=document.getElementById('badge-'+prefix);
+  if(el)el.innerHTML=`<span class="badge-tengo">🔴 ${nt}</span><span class="badge-faltan">🟢 ${nf}</span><span class="progress-bar"><span class="progress-fill" style="width:${pct}%"></span></span><span>${pct}%</span>`;
+}
+function renderStatsAlbum(){
+  let t=0,tn=0,f=0;
+  Object.keys(state).forEach(k=>Object.values(state[k]).forEach(v=>{t++;v?tn++:f++;}));
+  document.getElementById('sTotal').textContent=t;
+  document.getElementById('sTengo').textContent=tn;
+  document.getElementById('sFaltan').textContent=f;
+}
+function renderAlbum(){
+  const q=(document.getElementById('buscar').value||'').toLowerCase();
+  const f=document.getElementById('filtro').value;
+  const pais=document.getElementById('filtroPais').value;
+  const lista=document.getElementById('lista-album');
+  lista.innerHTML='';
+  Object.keys(TOTALS).forEach(prefix=>{
+    if(pais!=='todas'&&prefix!==pais)return;
+    let figs=Object.keys(state[prefix]).map(id=>({id,tengo:state[prefix][id]}));
+    if(f==='tengo')figs=figs.filter(x=>x.tengo);
+    if(f==='faltan')figs=figs.filter(x=>!x.tengo);
+    if(q){const m=NAMES[prefix].toLowerCase().includes(q)||prefix.toLowerCase().includes(q);if(!m)figs=figs.filter(x=>x.id.toLowerCase().includes(q));}
+    if(!figs.length)return;
+    const vals=Object.values(state[prefix]);
+    const nt=vals.filter(Boolean).length,nf=vals.length-nt,pct=vals.length?Math.round(nt/vals.length*100):0;
+    const bl=document.createElement('div');bl.className='bloque';
+    bl.innerHTML=`<div class="bloque-header" onclick="document.getElementById('figs-${prefix}').classList.toggle('hidden')">
+      <div class="bloque-titulo">${flagImg(prefix,20)}<span>${NAMES[prefix]}</span></div>
+      <div class="bloque-badge" id="badge-${prefix}">
+        <span class="badge-tengo">🔴 ${nt}</span><span class="badge-faltan">🟢 ${nf}</span>
+        <span class="progress-bar"><span class="progress-fill" style="width:${pct}%"></span></span>
+        <span>${pct}%</span>
+      </div></div>
+      <div class="figuritas" id="figs-${prefix}">
+        ${figs.map(x=>`<button id="fig-${x.id}" class="fig ${x.tengo?'tengo':'faltan'}" onclick="toggle('${prefix}','${x.id}')">${x.id}</button>`).join('')}
+      </div>`;
+    lista.appendChild(bl);
+  });
+  renderStatsAlbum();
+}
+
+// REPETIDAS
+function cambiarRep(prefix,id,delta){
+  if(!rep[prefix])rep[prefix]={};
+  rep[prefix][id]=Math.max(0,(rep[prefix][id]||0)+delta);saveRep();
+  const el=document.getElementById('rcount-'+id);
+  if(el)el.textContent=rep[prefix][id];
+  renderStatsRep();
+}
+function renderStatsRep(){
+  let t=0;const sels=new Set();let mx=0;
+  Object.keys(rep).forEach(k=>Object.entries(rep[k]).forEach(([,v])=>{if(v>0){t+=v;sels.add(k);if(v>mx)mx=v;}}));
+  document.getElementById('rTotal').textContent=t;
+  document.getElementById('rSelecciones').textContent=sels.size;
+  document.getElementById('rMax').textContent=mx;
+}
+function renderRepetidas(){
+  const pais=document.getElementById('filtroPaisRep').value;
+  const lista=document.getElementById('lista-rep');lista.innerHTML='';
+  Object.keys(TOTALS).forEach(prefix=>{
+    if(pais!=='todas'&&prefix!==pais)return;
+    const lams=buildIds(prefix).filter(id=>state[prefix]&&state[prefix][id]);
+    if(!lams.length)return;
+    const totalRep=lams.reduce((s,id)=>s+(rep[prefix]?.[id]||0),0);
+    const bl=document.createElement('div');bl.className='bloque';
+    bl.innerHTML=`<div class="bloque-header" onclick="document.getElementById('frep-${prefix}').classList.toggle('hidden')">
+      <div class="bloque-titulo">${flagImg(prefix,20)}<span>${NAMES[prefix]}</span></div>
+      <div class="bloque-badge"><span style="color:#7d5a00;font-weight:600">🔁 ${totalRep} repetida${totalRep!==1?'s':''}</span></div>
+    </div>
+    <div class="figuritas-rep" id="frep-${prefix}">
+      ${lams.map(id=>{const cnt=rep[prefix]?.[id]||0;return `<div class="fig-rep">
+        <span class="fig-rep-label">${id}</span>
+        <div class="fig-rep-ctrl">
+          <button class="fig-rep-btn" onclick="cambiarRep('${prefix}','${id}',-1)">−</button>
+          <span class="fig-rep-count" id="rcount-${id}">${cnt}</span>
+          <button class="fig-rep-btn" onclick="cambiarRep('${prefix}','${id}',1)">+</button>
+        </div></div>`;}).join('')}
+    </div>`;
+    lista.appendChild(bl);
+  });
+  renderStatsRep();
+}
+
+// TOAST
+function mostrarToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+// COMPARTIR
+function compartirFaltantes(){
+  const lineas=['⚽ Mis figuritas faltantes — Mundial 2026\n'];
+  Object.keys(TOTALS).forEach(prefix=>{
+    const f=Object.entries(state[prefix]).filter(([,v])=>!v).map(([id])=>id);
+    if(f.length)lineas.push(`[${prefix}] ${NAMES[prefix].split(' · ')[1]}: ${f.join(', ')}`);
+  });
+  const txt=lineas.join('\n');
+  if(navigator.share)navigator.share({text:txt}).catch(()=>copiar(txt));else copiar(txt);
+}
+function compartirRepetidas(){
+  const lineas=['🔁 Mis figuritas repetidas — Mundial 2026\n'];
+  Object.keys(TOTALS).forEach(prefix=>{
+    const r=Object.entries(rep[prefix]||{}).filter(([id,v])=>v>0&&state[prefix]?.[id]);
+    if(r.length)lineas.push(`[${prefix}] ${NAMES[prefix].split(' · ')[1]}: ${r.map(([id,v])=>`${id} x${v}`).join(', ')}`);
+  });
+  if(lineas.length===1){mostrarToast('Sin repetidas aún');return;}
+  const txt=lineas.join('\n');
+  if(navigator.share)navigator.share({text:txt}).catch(()=>copiar(txt));else copiar(txt);
+}
+function copiar(txt){
+  navigator.clipboard.writeText(txt)
+    .then(()=>mostrarToast('✅ Copiado al portapapeles'))
+    .catch(()=>mostrarToast('No se pudo copiar'));
+}
+
+// EXPORTAR / IMPORTAR
+function exportarDatos(){
+  const blob=new Blob([JSON.stringify({state,rep,fecha:new Date().toISOString()},null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='figuritas_2026_progreso.json';a.click();
+  mostrarToast('✅ Progreso exportado');
+}
+function importarDatos(event){
+  const file=event.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const d=JSON.parse(e.target.result);
+      if(d.state)Object.assign(state,d.state);
+      if(d.rep)Object.assign(rep,d.rep);
+      saveState();saveRep();renderAlbum();renderStatsAlbum();
+      mostrarToast('✅ Progreso importado');
+    }catch(e){mostrarToast('❌ Archivo inválido');}
+  };
+  reader.readAsText(file);event.target.value='';
+}
+
+// IMPRESIÓN — estilo planilla
+function buildPrint(modo){
+  const fecha=new Date().toLocaleDateString('es-CL',{day:'2-digit',month:'long',year:'numeric'});
+  let filas='',total=0;
+  Object.keys(TOTALS).forEach(prefix=>{
+    const nombre=NAMES[prefix].split(' · ')[1];
+    const iso=FLAG_ISO[prefix];
+    const flagHtml=iso
+      ? '<img src="https://flagcdn.com/20x15/'+iso+'.png" width="20" height="15" alt="'+prefix+'">'
+      : '<span style="font-size:13px">'+(prefix==='FWC'?'🏆':'🥤')+'</span>';
+    let chips='',count=0;
+    if(modo==='faltantes'){
+      const ids=Object.entries(state[prefix]).filter(([,v])=>!v).map(([id])=>id);
+      if(!ids.length)return;
+      count=ids.length; total+=count;
+      chips=ids.map(id=>'<span class="print-chip">'+id+'</span>').join('');
+    } else {
+      const items=Object.entries(rep[prefix]||{}).filter(([id,v])=>v>0&&state[prefix]?.[id]);
+      if(!items.length)return;
+      count=items.length; total+=count;
+      chips=items.map(([id,v])=>'<span class="print-chip">'+id+'<span class="print-chip-count"> x'+v+'</span></span>').join('');
+    }
+    filas+='<tr class="print-row">'
+      +'<td class="print-cell-pais" style="white-space:nowrap;padding:4px 30px 4px 2px;width:1%;border-right:2px solid #bbb;vertical-align:middle"><div class="print-pais-inner" style="display:flex;align-items:center;gap:5px">'+flagHtml+'<span class="print-pais-codigo" style="font-size:9px;font-weight:800;white-space:nowrap">'+prefix+'</span><span class="print-pais-nombre" style="font-size:8px;color:#555">'+nombre+'</span></div></td>'
+      +'<td class="print-cell-lams" style="padding:4px 6px 4px 20px;vertical-align:middle"><div class="print-lams" style="display:flex;flex-wrap:wrap;gap:3px">'+chips+'</div></td>'
+      +'</tr>';
+  });
+  if(!filas)return '<p style="padding:2cm;color:#aaa">Sin datos para imprimir.</p>';
+  const tituloModo=modo==='faltantes'?'FALTANTES':'REPETIDAS';
+  const clsModo='modo-'+modo;
+  return '<div class="print-page">'
+    +'<div class="print-header">'
+    +'<div class="print-header-left">'
+    +'<div class="print-title">PLANILLA DE CONTROL &nbsp;<span class="'+clsModo+'">· '+tituloModo+'</span></div>'
+    +'<div class="print-subtitle">FIFA World Cup 2026 · Álbum de figuritas</div>'
+    +'</div>'
+    +'<div class="print-meta">Impreso: '+fecha+'<br><b>'+total+' lámina'+(total!==1?'s':'')+'</b></div>'
+    +'</div>'
+    +'<table class="print-tabla"><tbody>'+filas+'</tbody></table>'
+    +'<div class="print-footer"><span>⚽ Figuritas Mundial 2026</span><span>'+fecha+'</span></div>'
+    +'</div>';
+}
+function imprimirFaltantes(){document.getElementById('print-area').innerHTML=buildPrint('faltantes');window.print();}
+function imprimirRepetidas(){document.getElementById('print-area').innerHTML=buildPrint('repetidas');window.print();}
+
+// INIT SELECTS PAÍSES
+const paisesOrdenados=Object.keys(NAMES).sort((a,b)=>{
+  const na=NAMES[a].split(' · ')[1]||'',nb=NAMES[b].split(' · ')[1]||'';
+  return na.localeCompare(nb,'es');
+});
+['filtroPais','filtroPaisRep'].forEach(selId=>{
+  const sel=document.getElementById(selId);
+  paisesOrdenados.forEach(prefix=>{
+    const opt=document.createElement('option');opt.value=prefix;
+    opt.innerHTML=flagImg(prefix,16)+' <b>'+prefix+'</b> · '+NAMES[prefix].split(' · ')[1];
+    sel.appendChild(opt);
+  });
+});
+
+document.getElementById('buscar').addEventListener('input',renderAlbum);
+document.getElementById('filtro').addEventListener('change',renderAlbum);
+document.getElementById('filtroPais').addEventListener('change',renderAlbum);
+document.getElementById('filtroPaisRep').addEventListener('change',renderRepetidas);
+renderAlbum();
+</script>
+</body>
+</html>
