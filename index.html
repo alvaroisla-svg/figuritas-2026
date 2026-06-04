@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Figuritas Mundial 2026 ⚽</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
   --rojo:#e63946; --rojo-bg:#fde8ea;
@@ -26,8 +27,14 @@ header p{font-size:.7rem;opacity:.65;margin-top:2px;letter-spacing:1px;text-tran
 .tab{flex:1;padding:.6rem .5rem;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;color:rgba(255,255,255,.6);background:transparent;border:none;cursor:pointer;border-bottom:3px solid transparent;transition:all .2s}
 .tab.activa{color:white;border-bottom:3px solid var(--amarillo)}
 
+/* NUBE SYNC */
+.nube-sync { background:#e8f4fd; padding:12px; border-radius:12px; margin: 12px auto; max-width: 700px; border: 1px solid #90caf9; display: flex; flex-wrap: wrap; gap: 8px; width: calc(100% - 2rem); }
+.nube-sync input { flex:1; min-width: 200px; padding:8px 12px; font-size:14px; font-family:'DM Sans',sans-serif; border:1.5px solid #90caf9; border-radius:8px; outline:none; }
+.nube-sync input:focus { border-color:var(--acento); }
+.nube-sync p { flex-basis: 100%; font-size: 11px; color: #0353a4; margin-top: 4px; line-height: 1.3; }
+
 /* STATS */
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:1rem;max-width:700px;margin:0 auto}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:0 1rem 1rem;max-width:700px;margin:0 auto}
 .stat{background:var(--card);border-radius:12px;padding:.75rem .5rem;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.07);border:1px solid var(--gris-borde)}
 .stat-n{font-family:'Bebas Neue',sans-serif;font-size:2rem;line-height:1}
 .stat-n.total{color:var(--acento)} .stat-n.tenidas{color:var(--rojo)} .stat-n.faltantes{color:var(--verde)} .stat-n.rep-n{color:#b8860b}
@@ -123,36 +130,24 @@ footer{text-align:center;padding:1rem;font-size:11px;color:var(--texto-suave)}
   /* Fila de selección */
   .print-row td{ border-bottom:1px solid #ddd; vertical-align:middle; padding:4px 0 }
 
-  /* Celda de bandera+nombre — todo en una fila */
+  /* Celda de bandera+nombre */
   .print-cell-pais{
     white-space:nowrap; padding:4px 28px 4px 2px;
     width:1%; border-right:2px solid #bbb;
   }
-  .print-pais-inner{
-    display:flex; align-items:center; gap:5px;
-  }
+  .print-pais-inner{ display:flex; align-items:center; gap:5px; }
   .print-pais-inner img{ display:block; border-radius:2px; flex-shrink:0 }
-  .print-pais-codigo{
-    font-size:9px; font-weight:800; text-transform:uppercase;
-    letter-spacing:.5px; color:#111; white-space:nowrap;
-  }
-  .print-pais-nombre{
-    font-size:8px; font-weight:400; color:#555;
-  }
-
-  /* Celda de láminas */
+  .print-pais-codigo{ font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:.5px; color:#111; white-space:nowrap; }
+  .print-pais-nombre{ font-size:8px; font-weight:400; color:#555; }
   .print-cell-lams{ padding:4px 6px 4px 18px }
   .print-lams{ display:flex; flex-wrap:wrap; gap:3px }
 
   .print-chip{
     font-size:9px; font-weight:700; padding:3px 6px;
     border-radius:3px; white-space:nowrap; letter-spacing:.2px;
-    border:1px solid #999; background:white; color:#111;
-    display:inline-block;
+    border:1px solid #999; background:white; color:#111; display:inline-block;
   }
-  .print-chip-count{
-    font-weight:400; color:#888; margin-left:2px;
-  }
+  .print-chip-count{ font-weight:400; color:#888; margin-left:2px; }
 
   /* FOOTER */
   .print-footer{
@@ -166,14 +161,19 @@ footer{text-align:center;padding:1rem;font-size:11px;color:var(--texto-suave)}
 
 <header>
   <h1>⚽ Figuritas Mundial 2026</h1>
-  <p>Toca una lámina para marcarla · Se guarda automáticamente</p>
+  <p>Toca una lámina para marcarla</p>
   <div class="tabs">
     <button class="tab activa" onclick="cambiarTab('album')">📋 Mi Álbum</button>
     <button class="tab" onclick="cambiarTab('repetidas')">🔁 Repetidas</button>
   </div>
 </header>
 
-<!-- ÁLBUM -->
+<div class="nube-sync">
+  <input type="text" id="syncClave" placeholder="🔑 Crea una clave única (ej: juan2026)">
+  <button class="btn btn-export" onclick="sincronizarNube()">☁️ Conectar Nube</button>
+  <p>Conecta la nube para usar tu álbum en todos tus dispositivos. Tus cambios se guardarán automáticamente.</p>
+</div>
+
 <div id="tab-album">
   <div class="stats">
     <div class="stat"><div class="stat-n total" id="sTotal">0</div><div class="stat-l">Total</div></div>
@@ -198,14 +198,13 @@ footer{text-align:center;padding:1rem;font-size:11px;color:var(--texto-suave)}
     <button class="btn btn-print"  onclick="imprimirFaltantes()">🖨️ Imprimir faltantes</button>
   </div>
   <div class="btn-row">
-    <button class="btn btn-export" onclick="exportarDatos()">💾 Exportar progreso</button>
-    <button class="btn btn-import" onclick="document.getElementById('importInput').click()">📥 Importar progreso</button>
+    <button class="btn btn-export" onclick="exportarDatos()">💾 Exportar offline</button>
+    <button class="btn btn-import" onclick="document.getElementById('importInput').click()">📥 Importar offline</button>
     <input type="file" id="importInput" accept=".json" style="display:none" onchange="importarDatos(event)">
   </div>
   <div class="lista" id="lista-album"></div>
 </div>
 
-<!-- REPETIDAS -->
 <div id="tab-repetidas" class="hidden">
   <div class="stats">
     <div class="stat"><div class="stat-n rep-n" id="rTotal">0</div><div class="stat-l">Total repetidas</div></div>
@@ -223,10 +222,70 @@ footer{text-align:center;padding:1rem;font-size:11px;color:var(--texto-suave)}
 </div>
 
 <div id="print-area"></div>
-<footer>Álbum FIFA World Cup 2026 · Guardado automático en este navegador</footer>
+<footer>Álbum FIFA World Cup 2026 · Con tecnología de Supabase</footer>
 <div class="toast" id="toast"></div>
 
 <script>
+/* ===============================
+   CONFIGURACIÓN SUPABASE
+================================*/
+const supaUrl = 'https://sizghdmbbbymnuelonat.supabase.co';
+const supaKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNpemdoZG1iYmJ5bW51ZWxvbmF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA1NTUyNzAsImV4cCI6MjA5NjEzMTI3MH0.fQBHe56t-w8wJARcnPxIzZcnFSLK-7EvoxilcOVR52Y';
+const supa = supabase.createClient(supaUrl, supaKey);
+
+let syncTimeout = null;
+let miClave = localStorage.getItem('supa_clave') || '';
+
+async function sincronizarNube() {
+  const input = document.getElementById('syncClave').value.trim();
+  if(!input) { mostrarToast('⚠️ Ingresa una clave primero'); return; }
+  
+  miClave = input;
+  localStorage.setItem('supa_clave', miClave);
+  mostrarToast('⏳ Conectando a la nube...');
+
+  const { data, error } = await supa.from('progreso').select('datos').eq('clave', miClave).maybeSingle();
+
+  if (error) {
+    mostrarToast('❌ Error de conexión');
+    console.error(error);
+    return;
+  }
+
+  if (data && data.datos) {
+    if(data.datos.state) Object.assign(state, data.datos.state);
+    if(data.datos.rep) Object.assign(rep, data.datos.rep);
+    saveStateLocal();
+    saveRepLocal();
+    renderAlbum();
+    if(document.getElementById('tab-repetidas').classList.contains('hidden') === false) renderRepetidas();
+    mostrarToast('✅ Progreso descargado de la nube');
+  } else {
+    guardarEnNube(true);
+  }
+}
+
+async function guardarEnNube(mostrarMensaje = false) {
+  if(!miClave) return;
+  clearTimeout(syncTimeout);
+  // Esperamos 1 segundo después del último click para no saturar la base de datos
+  syncTimeout = setTimeout(async () => {
+    const { error } = await supa.from('progreso').upsert({
+      clave: miClave,
+      datos: { state, rep, fecha: new Date().toISOString() }
+    }, { onConflict: 'clave' });
+    
+    if(error) {
+      console.error('Error guardando en la nube:', error);
+    } else if(mostrarMensaje) {
+      mostrarToast('✅ Progreso vinculado a la nube');
+    }
+  }, 1000); 
+}
+
+/* ===============================
+   LÓGICA DEL ÁLBUM
+================================*/
 const FLAG_ISO={
   FWC:null,MEX:"mx",RSA:"za",KOR:"kr",CZE:"cz",CAN:"ca",BIH:"ba",QAT:"qa",
   SUI:"ch",BRA:"br",MAR:"ma",HAI:"ht",SCO:"gb-sct",USA:"us",PAR:"py",AUS:"au",
@@ -323,9 +382,20 @@ function loadRep(){
   const r={};Object.keys(TOTALS).forEach(p=>{r[p]={};buildIds(p).forEach(id=>r[p][id]=0);});
   return r;
 }
+
 const state=loadState(), rep=loadRep();
-function saveState(){localStorage.setItem(LS_KEY,JSON.stringify(state));}
-function saveRep(){localStorage.setItem(LS_KEY_R,JSON.stringify(rep));}
+
+function saveStateLocal(){localStorage.setItem(LS_KEY,JSON.stringify(state));}
+function saveRepLocal(){localStorage.setItem(LS_KEY_R,JSON.stringify(rep));}
+
+function saveState(){
+  saveStateLocal();
+  guardarEnNube();
+}
+function saveRep(){
+  saveRepLocal();
+  guardarEnNube();
+}
 
 // TABS
 function cambiarTab(tab){
@@ -483,7 +553,7 @@ function importarDatos(event){
   reader.readAsText(file);event.target.value='';
 }
 
-// IMPRESIÓN — estilo planilla
+// IMPRESIÓN
 function buildPrint(modo){
   const fecha=new Date().toLocaleDateString('es-CL',{day:'2-digit',month:'long',year:'numeric'});
   let filas='',total=0;
@@ -528,7 +598,7 @@ function buildPrint(modo){
 function imprimirFaltantes(){document.getElementById('print-area').innerHTML=buildPrint('faltantes');window.print();}
 function imprimirRepetidas(){document.getElementById('print-area').innerHTML=buildPrint('repetidas');window.print();}
 
-// INIT SELECTS PAÍSES
+// INIT SELECTS Y DATOS
 const paisesOrdenados=Object.keys(NAMES).sort((a,b)=>{
   const na=NAMES[a].split(' · ')[1]||'',nb=NAMES[b].split(' · ')[1]||'';
   return na.localeCompare(nb,'es');
@@ -546,6 +616,12 @@ document.getElementById('buscar').addEventListener('input',renderAlbum);
 document.getElementById('filtro').addEventListener('change',renderAlbum);
 document.getElementById('filtroPais').addEventListener('change',renderAlbum);
 document.getElementById('filtroPaisRep').addEventListener('change',renderRepetidas);
+
+// Auto-carga de clave al abrir la página
+if (miClave) {
+  document.getElementById('syncClave').value = miClave;
+}
+
 renderAlbum();
 </script>
 </body>
