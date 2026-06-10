@@ -187,7 +187,7 @@ footer{text-align:center;padding:1rem;font-size:11px;color:var(--texto-suave)}
     <button class="btn btn-print"  onclick="imprimirFaltantes()">🖨️ Imprimir faltantes</button>
   </div>
 
-  <div class="btn-row> /* hidden" style="display: none;"> */
+  <div class="btn-row> 
     <button class="btn btn-export" onclick="exportarDatos()">💾 Exportar offline</button>
     <button class="btn btn-import" onclick="document.getElementById('importInput').click()">📥 Importar offline</button>
     <input type="file" id="importInput" accept=".json" style="display:none" onchange="importarDatos(event)">
